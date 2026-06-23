@@ -1,0 +1,158 @@
+================================================================================
+PT SAI INSPIRASI KOLABORASI
+STANDAR OPERASIONAL PROSEDUR (SOP) & KEBIJAKAN INTERNAL
+================================================================================
+Versi: 2.1 | Berlaku Efektif: 1 Januari 2026 | Disetujui oleh: Direktur Utama
+
+================================================================================
+BAB 1: KETENTUAN UMUM
+================================================================================
+
+1.1. Visi dan Misi
+- Visi: Menjadi penyedia ruang kerja kolaboratif terdepan di Indonesia yang
+  mendorong inovasi dan produktivitas.
+- Misi: Menyediakan ruang kerja fleksibel berkualitas tinggi dengan harga
+  terjangkau, didukung teknologi dan layanan prima di seluruh lokasi strategis.
+
+1.2. Nilai-Nilai Perusahaan (CORE VALUES)
+- Kolaborasi: Mendorong sinergi antar anggota dan tim internal.
+- Inovasi: Terbuka terhadap ide baru dan perbaikan berkelanjutan.
+- Integritas: Menjalankan bisnis dengan jujur, transparan, dan bertanggung jawab.
+- Kepuasan Pelanggan: Mengutamakan kebutuhan dan kenyamanan anggota sebagai
+  prioritas utama.
+
+================================================================================
+BAB 2: STANDAR OPERASIONAL LAYANAN
+================================================================================
+
+2.1. Layanan yang Disediakan
+SAI Cowork menyediakan 6 (enam) jenis layanan utama[reference:0]:
+1. Private Office (Kantor Pribadi)
+2. Dedicated Workspace (Ruang Kerja Khusus)
+3. Coworking Space (Ruang Kerja Bersama)
+4. Meeting Room (Ruang Rapat)
+5. Event Space (Ruang Acara)
+6. Virtual Office (Kantor Virtual)
+
+2.2. Prosedur Pemesanan Ruang
+A. Pemesanan Online via Aplikasi/Website
+   1. Anggota/login pengunjung membuka aplikasi SAI Cowork atau website.
+   2. Memilih lokasi cabang yang diinginkan.
+   3. Memilih jenis ruang dan kapasitas yang dibutuhkan.
+   4. Memilih tanggal, jam mulai, dan durasi pemakaian.
+   5. Sistem menampilkan ketersediaan dan total biaya.
+   6. Pengguna melakukan pembayaran via transfer bank/QRIS/E-Wallet.
+   7. Sistem mengirimkan kode booking/QR Code sebagai bukti reservasi.
+   8. Pengguna menunjukan kode booking kepada petugas前台 saat check-in.
+
+B. Pemesanan Offline (Walk-in)
+   1. Pengunjung datang ke lokasi cabang SAI Cowork terdekat.
+   2. Petugas front office menyambut dan menanyakan kebutuhan.
+   3. Petugas mengecek ketersediaan ruang secara real-time via sistem.
+   4. Jika tersedia, petugas mengarahkan pengunjung untuk mengisi formulir
+      reservasi dan melakukan pembayaran di tempat.
+   5. Petugas memberikan akses ruang dan informasi fasilitas.
+
+2.3. Prosedur Check-in dan Check-out
+- Check-in: Anggota/pengunjung melakukan scan QR Code dari aplikasi atau
+  menunjukkan kode booking kepada petugas. Petugas mencatat waktu masuk.
+- Check-out: Anggota/pengunjung mengembalikan akses (kartu/QR) dan memastikan
+  ruang dalam kondisi bersih. Petugas mencatat waktu keluar dan melakukan
+  inspeksi singkat.
+
+2.4. Prosedur Penanganan Keluhan (Complaint Handling)
+1. Anggota menyampaikan keluhan melalui:
+   - Aplikasi SAI Cowork (fitur "Kritik & Saran")
+   - Email ke info@saicowork.com[reference:1]
+   - WhatsApp ke +6281287018707[reference:2]
+   - Langsung ke petugas front office
+2. Petugas mencatat keluhan dalam sistem ticketing dengan tingkat prioritas:
+   - Prioritas 1 (Darurat): Ditangani dalam < 1 jam.
+   - Prioritas 2 (Penting): Ditangani dalam < 4 jam.
+   - Prioritas 3 (Standar): Ditangani dalam < 24 jam.
+3. Petugas terkait melakukan tindakan perbaikan.
+4. Konfirmasi penyelesaian kepada anggota dan meminta umpan balik.
+
+================================================================================
+BAB 3: KEBIJAKAN INTERNAL
+================================================================================
+
+3.1. Kebijakan Kehadiran dan Jam Kerja Karyawan
+- Jam operasional semua cabang: Senin-Jumat (08.00-22.00 WIB), Sabtu-Minggu
+  (09.00-20.00 WIB) dengan fleksibilitas sesuai kebutuhan[reference:3].
+- Karyawan shift pagi: 07.30-16.30 WIB.
+- Karyawan shift siang: 12.00-21.00 WIB.
+- Karyawan wajib melakukan check-in/out melalui sistem HRIS.
+
+3.2. Kebijakan Penggunaan Fasilitas oleh Anggota
+- Anggota wajib menjaga kebersihan dan ketertiban ruang.
+- Dilarang merokok di dalam gedung (termasuk ruang tertutup).
+- Konsumsi makanan/minuman hanya diperbolehkan di area pantry yang telah
+  disediakan[reference:4].
+- Fasilitas internet (WiFi) dapat diakses dengan password yang diberikan saat
+  check-in, untuk keperluan pekerjaan profesional (bukan untuk streaming
+  berat/download ilegal).
+
+3.3. Kebijakan Pembatalan dan Refund
+- Pembatalan reservasi dilakukan H-1 (minimal 24 jam sebelum jadwal) untuk
+  mendapatkan refund penuh.
+- Pembatalan < 24 jam: dikenakan biaya 50% dari total harga.
+- Pembatalan < 3 jam: tidak ada refund (biaya penuh).
+- Refund diproses dalam 3-5 hari kerja via metode pembayaran awal.
+
+3.4. Kebijakan Keamanan Data dan Privasi
+- Seluruh data klien, vendor, dan karyawan dilindungi kerahasiaannya sesuai
+  dengan UU ITE dan UU Perlindungan Data Pribadi (PDP).
+- Akses ke database internal hanya diberikan kepada karyawan yang membutuhkan
+  sesuai dengan level otorisasinya (role-based access).
+- Dilarang membagikan data internal kepada pihak luar tanpa izin Direksi.
+
+================================================================================
+BAB 4: STANDAR OPERASIONAL FASILITAS & MAINTENANCE
+================================================================================
+
+4.1. Standar Kebersihan Ruang
+- Ruang kerja dan area umum dibersihkan setiap hari sebelum jam operasional
+  dan setelah jam operasional oleh tim cleaning service.
+- Toilet dan pantry dibersihkan setiap 2 jam sekali.
+- Sampah dibuang minimal 2 kali sehari (pagi dan sore).
+
+4.2. Standar Pemeliharaan Peralatan
+- Pengecekan rutin AC, WiFi, proyektor, dan peralatan meeting room dilakukan
+  setiap hari Senin dan Kamis.
+- Kerusakan peralatan dilaporkan via sistem ticketing maintenance.
+- Perbaikan ringan (< 4 jam), perbaikan berat (maksimal 2x24 jam).
+
+================================================================================
+BAB 5: SANKSI DAN DISIPLIN
+================================================================================
+
+5.1. Sanksi untuk Anggota
+- Pelanggaran ringan (kebisingan, ketidaktertiban): teguran lisan.
+- Pelanggaran sedang (merokok di area terlarang, membawa hewan peliharaan tanpa
+  izin): teguran tertulis.
+- Pelanggaran berat (merusak fasilitas, tindakan kriminal): pemutusan
+  keanggotaan dan tuntutan hukum sesuai ketentuan.
+
+5.2. Sanksi untuk Karyawan
+- Terlambat > 3 kali dalam sebulan: teguran tertulis.
+- Tidak menjalankan SOP: pembinaan dan pelatihan ulang.
+- Pelanggaran berat (pencurian, kebocoran data): pemutusan hubungan kerja (PHK)
+  dan proses hukum.
+
+================================================================================
+BAB 6: REVISI DAN PENGESAHAN
+================================================================================
+
+Dokumen ini berlaku efektif sejak tanggal 1 Januari 2026 dan akan ditinjau
+kembali setiap 6 (enam) bulan sekali atau sewaktu-waktu jika diperlukan
+perubahan kebijakan.
+
+Ditetapkan di: Jakarta
+Pada tanggal: 1 Januari 2026
+
+Direktur Utama,
+
+Togu Sibarani
+
+================================================================================

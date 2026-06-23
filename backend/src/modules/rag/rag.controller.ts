@@ -14,7 +14,6 @@ export class RagController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // Max 10MB
-          new FileTypeValidator({ fileType: 'text/plain' }), // Accepting txt files for simplicity
         ],
       }),
     )

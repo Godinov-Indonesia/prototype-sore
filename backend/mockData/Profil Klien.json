@@ -1,0 +1,219 @@
+{
+  "database_klien": {
+    "perusahaan": "PT SAI Inspirasi Kolaborasi",
+    "total_klien": 2847,
+    "last_updated": "2026-06-18T08:00:00Z",
+    "daftar_klien": [
+      {
+        "id_klien": "CL-0001",
+        "nama_perusahaan": "PT Kreatif Nusantara Digital",
+        "jenis_bisnis": "Startup Teknologi",
+        "industri": "Software Development",
+        "email": "info@kreatifdigital.co.id",
+        "nomor_telepon": "081234567890",
+        "alamat": "Jl. Sudirman No. 45, Jakarta Selatan",
+        "tipe_keanggotaan": "Corporate",
+        "layanan_yang_digunakan": ["Private Office", "Meeting Room"],
+        "cabang_favorit": "SAI Cowork Jakarta",
+        "tanggal_bergabung": "2024-03-15",
+        "status": "Aktif",
+        "total_transaksi": 147000000,
+        "kontak_utama": {
+          "nama": "Andi Wijaya",
+          "jabatan": "CEO",
+          "email": "andi@kreatifdigital.co.id",
+          "telepon": "081234567891"
+        }
+      },
+      {
+        "id_klien": "CL-0002",
+        "nama_perusahaan": "CV Maju Bersama Consulting",
+        "jenis_bisnis": "Konsultan Bisnis",
+        "industri": "Management Consulting",
+        "email": "admin@majubersama.co.id",
+        "nomor_telepon": "081298765432",
+        "alamat": "Jl. Raya Darmo No. 88, Surabaya",
+        "tipe_keanggotaan": "Freelancer Plus",
+        "layanan_yang_digunakan": ["Dedicated Workspace", "Virtual Office"],
+        "cabang_favorit": "SAI Cowork Surabaya",
+        "tanggal_bergabung": "2024-07-01",
+        "status": "Aktif",
+        "total_transaksi": 36500000,
+        "kontak_utama": {
+          "nama": "Siti Rahma",
+          "jabatan": "Direktur",
+          "email": "siti@majubersama.co.id",
+          "telepon": "081298765433"
+        }
+      },
+      {
+        "id_klien": "CL-0003",
+        "nama_perusahaan": "PT Edukasi Inovatif",
+        "jenis_bisnis": "Lembaga Pendidikan",
+        "industri": "Education & Training",
+        "email": "info@edukasiinovatif.com",
+        "nomor_telepon": "082345678901",
+        "alamat": "Jl. Pemuda No. 12, Medan",
+        "tipe_keanggotaan": "Enterprise",
+        "layanan_yang_digunakan": ["Event Space", "Meeting Room", "Coworking Space"],
+        "cabang_favorit": "SAI Cowork Medan",
+        "tanggal_bergabung": "2024-01-20",
+        "status": "Aktif",
+        "total_transaksi": 289000000,
+        "kontak_utama": {
+          "nama": "Budi Santoso",
+          "jabatan": "Ketua Program",
+          "email": "budi@edukasiinovatif.com",
+          "telepon": "082345678902"
+        }
+      },
+      {
+        "id_klien": "CL-0004",
+        "nama_perusahaan": "PT Agro Niaga Sejahtera",
+        "jenis_bisnis": "Perdagangan",
+        "industri": "Agribusiness",
+        "email": "cs@agroniaga.co.id",
+        "nomor_telepon": "083456789012",
+        "alamat": "Jl. Jend. Sudirman No. 78, Pekanbaru",
+        "tipe_keanggotaan": "Bisnis",
+        "layanan_yang_digunakan": ["Meeting Room", "Virtual Office"],
+        "cabang_favorit": "SAI Cowork Pekanbaru",
+        "tanggal_bergabung": "2024-09-10",
+        "status": "Aktif",
+        "total_transaksi": 12500000,
+        "kontak_utama": {
+          "nama": "Rudi Hartono",
+          "jabatan": "Manajer Operasional",
+          "email": "rudi@agroniaga.co.id",
+          "telepon": "083456789013"
+        }
+      },
+      {
+        "id_klien": "CL-0005",
+        "nama_perusahaan": "CV Studio Kreatif",
+        "jenis_bisnis": "Kreatif & Desain",
+        "industri": "Creative Agency",
+        "email": "hello@studiokreatif.com",
+        "nomor_telepon": "084567890123",
+        "alamat": "Jl. Gajah Mada No. 33, Pontianak",
+        "tipe_keanggotaan": "Freelancer",
+        "layanan_yang_digunakan": ["Coworking Space"],
+        "cabang_favorit": "SAI Cowork Pontianak",
+        "tanggal_bergabung": "2025-02-14",
+        "status": "Aktif",
+        "total_transaksi": 6500000,
+        "kontak_utama": {
+          "nama": "Dewi Lestari",
+          "jabatan": "Creative Director",
+          "email": "dewi@studiokreatif.com",
+          "telepon": "084567890124"
+        }
+      },
+      {
+        "id_klien": "CL-0006",
+        "nama_perusahaan": "PT Finansial Solusi Indonesia",
+        "jenis_bisnis": "Jasa Keuangan",
+        "industri": "Financial Services",
+        "email": "info@finansialsolusi.co.id",
+        "nomor_telepon": "085678901234",
+        "alamat": "Jl. Thamrin No. 55, Jakarta Pusat",
+        "tipe_keanggotaan": "Enterprise",
+        "layanan_yang_digunakan": ["Private Office", "Meeting Room", "Event Space"],
+        "cabang_favorit": "SAI Cowork Jakarta",
+        "tanggal_bergabung": "2023-11-01",
+        "status": "Aktif",
+        "total_transaksi": 435000000,
+        "kontak_utama": {
+          "nama": "Agus Prabowo",
+          "jabatan": "Direktur Keuangan",
+          "email": "agus@finansialsolusi.co.id",
+          "telepon": "085678901235"
+        }
+      },
+      {
+        "id_klien": "CL-0007",
+        "nama_perusahaan": "PT Teknologi Maju Jaya",
+        "jenis_bisnis": "Startup Teknologi",
+        "industri": "IT Services",
+        "email": "hello@teknologimaju.com",
+        "nomor_telepon": "086789012345",
+        "alamat": "Jl. Raya Semarang No. 20, Semarang",
+        "tipe_keanggotaan": "Corporate",
+        "layanan_yang_digunakan": ["Dedicated Workspace", "Meeting Room"],
+        "cabang_favorit": "SAI Cowork Semarang",
+        "tanggal_bergabung": "2024-05-05",
+        "status": "Aktif",
+        "total_transaksi": 92000000,
+        "kontak_utama": {
+          "nama": "Hendra Gunawan",
+          "jabatan": "CTO",
+          "email": "hendra@teknologimaju.com",
+          "telepon": "086789012346"
+        }
+      },
+      {
+        "id_klien": "CL-0008",
+        "nama_perusahaan": "CV Anugrah Logistik",
+        "jenis_bisnis": "Logistik & Distribusi",
+        "industri": "Logistics",
+        "email": "cs@anugrahlogistik.co.id",
+        "nomor_telepon": "087890123456",
+        "alamat": "Jl. Ahmad Yani No. 67, Surabaya",
+        "tipe_keanggotaan": "Bisnis",
+        "layanan_yang_digunakan": ["Virtual Office", "Meeting Room"],
+        "cabang_favorit": "SAI Cowork Surabaya",
+        "tanggal_bergabung": "2024-08-12",
+        "status": "Tidak Aktif",
+        "total_transaksi": 8750000,
+        "kontak_utama": {
+          "nama": "Eko Prasetyo",
+          "jabatan": "Manajer",
+          "email": "eko@anugrahlogistik.co.id",
+          "telepon": "087890123457"
+        }
+      },
+      {
+        "id_klien": "CL-0009",
+        "nama_perusahaan": "PT Media Digital Nusantara",
+        "jenis_bisnis": "Media & Penerbitan",
+        "industri": "Media",
+        "email": "redaksi@mediadigital.com",
+        "nomor_telepon": "088901234567",
+        "alamat": "Jl. Diponegoro No. 10, Medan",
+        "tipe_keanggotaan": "Corporate",
+        "layanan_yang_digunakan": ["Coworking Space", "Event Space"],
+        "cabang_favorit": "SAI Cowork Medan",
+        "tanggal_bergabung": "2025-01-25",
+        "status": "Aktif",
+        "total_transaksi": 157000000,
+        "kontak_utama": {
+          "nama": "Rina Marlina",
+          "jabatan": "Pemimpin Redaksi",
+          "email": "rina@mediadigital.com",
+          "telepon": "088901234568"
+        }
+      },
+      {
+        "id_klien": "CL-0010",
+        "nama_perusahaan": "PT Properti Harmoni",
+        "jenis_bisnis": "Properti & Real Estate",
+        "industri": "Real Estate",
+        "email": "info@propertiharmoni.co.id",
+        "nomor_telepon": "089012345678",
+        "alamat": "Jl. Pahlawan No. 99, Pontianak",
+        "tipe_keanggotaan": "Bisnis",
+        "layanan_yang_digunakan": ["Meeting Room", "Virtual Office"],
+        "cabang_favorit": "SAI Cowork Pontianak",
+        "tanggal_bergabung": "2024-10-20",
+        "status": "Aktif",
+        "total_transaksi": 18750000,
+        "kontak_utama": {
+          "nama": "Tono Suhartono",
+          "jabatan": "Direktur",
+          "email": "tono@propertiharmoni.co.id",
+          "telepon": "089012345679"
+        }
+      }
+    ]
+  }
+}

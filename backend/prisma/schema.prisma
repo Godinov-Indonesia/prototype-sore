@@ -32,12 +32,71 @@ model Message {
 }
 
 model Document {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   name      String
   filePath  String
-  status    String   // 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status    String          // 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  chunks    DocumentChunk[]
 
   @@map("documents")
+}
+
+model DocumentChunk {
+  id         String                    @id @default(uuid())
+  documentId String                    @map("document_id")
+  document   Document                  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex Int                       @map("chunk_index")
+  content    String
+  embedding  Unsupported("vector(1536)")?
+
+  @@map("document_chunks")
+}
+
+model Employee {
+  id               String   @id @default(uuid())
+  idKaryawan       String   @unique @map("id_karyawan")
+  namaLengkap      String   @map("nama_lengkap")
+  jenisKelamin     String?  @map("jenis_kelamin")
+  tanggalLahir     String?  @map("tanggal_lahir")
+  jabatan          String   @map("jabatan")
+  departemen       String   @map("departemen")
+  level            String?  @map("level")
+  email            String   @unique @map("email")
+  nomorTelepon     String?  @map("nomor_telepon")
+  tanggalBergabung String?  @map("tanggal_bergabung")
+  lokasiKerja      String?  @map("lokasi_kerja")
+  status           String   @map("status")
+  gajiPokok        Float?   @map("gaji_pokok")
+  tunjangan        Float?   @map("tunjangan")
+  tasks            Task[]
+
+  @@map("employees")
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  dueDate     DateTime? @map("due_date")
+  status      String    @default("PENDING") // 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  employeeId  String    @map("employee_id")
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("tasks")
+}
+
+model Reminder {
+  id        String   @id @default(uuid())
+  taskTitle String   @map("task_title")
+  email     String
+  remindAt  DateTime @map("remind_at")
+  sent      Boolean  @default(false)
+  type      String   // 'H-1' | 'H-12H'
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reminders")
 }

@@ -1,0 +1,123 @@
+{
+  "rapor_performa_vendor": {
+    "perusahaan": "PT SAI Inspirasi Kolaborasi",
+    "periode_penilaian": "Q2 2026 (April - Juni)",
+    "tanggal_rilis": "2026-06-18",
+    "total_vendor": 24,
+    "daftar_vendor": [
+      {
+        "id_vendor": "VEN-001",
+        "nama_vendor": "PT Furnindo Jaya",
+        "jenis_vendor": "Supplier Furniture",
+        "kontak": "081234567890 | furnindo@jaya.co.id",
+        "alamat": "Jl. Industri Raya No. 45, Bekasi",
+        "total_transaksi_q2": 12,
+        "total_nilai_transaksi": 875000000,
+        "rata_rata_waktu_pengiriman": 3.2,
+        "tingkat_akurasi_pesanan": 96.8,
+        "tingkat_kerusakan_barang": 2.1,
+        "rating_keseluruhan": 4.2,
+        "kelebihan": "Kualitas material baik, harga kompetitif",
+        "kekurangan": "Pengiriman kadang terlambat 1-2 hari",
+        "rekomendasi": "Perlu peningkatan koordinasi logistik",
+        "status_kemitraan": "Aktif"
+      },
+      {
+        "id_vendor": "VEN-002",
+        "nama_vendor": "PT Electronic Solution",
+        "jenis_vendor": "Supplier Elektronik",
+        "kontak": "082345678901 | info@electronicsolution.co.id",
+        "alamat": "Jl. Mangga Dua Raya No. 12, Jakarta",
+        "total_transaksi_q2": 8,
+        "total_nilai_transaksi": 425000000,
+        "rata_rata_waktu_pengiriman": 2.0,
+        "tingkat_akurasi_pesanan": 99.5,
+        "tingkat_kerusakan_barang": 0.8,
+        "rating_keseluruhan": 4.8,
+        "kelebihan": "Pengiriman cepat, barang berkualitas, garansi baik",
+        "kekurangan": "Harga sedikit lebih tinggi dari kompetitor",
+        "rekomendasi": "Perlu dipertahankan sebagai vendor utama",
+        "status_kemitraan": "Aktif"
+      },
+      {
+        "id_vendor": "VEN-003",
+        "nama_vendor": "PT Nusantara Network",
+        "jenis_vendor": "Supplier IT & Networking",
+        "kontak": "083456789012 | sales@nusantaranetwork.com",
+        "alamat": "Jl. Gatot Subroto No. 88, Jakarta",
+        "total_transaksi_q2": 5,
+        "total_nilai_transaksi": 156000000,
+        "rata_rata_waktu_pengiriman": 1.8,
+        "tingkat_akurasi_pesanan": 98.0,
+        "tingkat_kerusakan_barang": 0.5,
+        "rating_keseluruhan": 4.6,
+        "kelebihan": "Produk original, dukungan teknis baik",
+        "kekurangan": "Minimal order tinggi",
+        "rekomendasi": "Baik untuk pembelian dalam jumlah besar",
+        "status_kemitraan": "Aktif"
+      },
+      {
+        "id_vendor": "VEN-004",
+        "nama_vendor": "PT Interior Indah",
+        "jenis_vendor": "Supplier Interior & Dekorasi",
+        "kontak": "084567890123 | info@interiorindah.co.id",
+        "alamat": "Jl. Pajajaran No. 23, Bandung",
+        "total_transaksi_q2": 6,
+        "total_nilai_transaksi": 215000000,
+        "rata_rata_waktu_pengiriman": 4.5,
+        "tingkat_akurasi_pesanan": 90.2,
+        "tingkat_kerusakan_barang": 4.5,
+        "rating_keseluruhan": 3.2,
+        "kelebihan": "Desain produk menarik dan variatif",
+        "kekurangan": "Sering terjadi keterlambatan dan kerusakan",
+        "rekomendasi": "Perlu evaluasi ulang; cari alternatif vendor",
+        "status_kemitraan": "Dalam Evaluasi"
+      },
+      {
+        "id_vendor": "VEN-005",
+        "nama_vendor": "PT Stationery Makmur",
+        "jenis_vendor": "Supplier Perlengkapan Kantor",
+        "kontak": "085678901234 | cs@stationerymakmur.com",
+        "alamat": "Jl. Raya Pasar Baru No. 7, Jakarta",
+        "total_transaksi_q2": 15,
+        "total_nilai_transaksi": 87500000,
+        "rata_rata_waktu_pengiriman": 1.5,
+        "tingkat_akurasi_pesanan": 99.0,
+        "tingkat_kerusakan_barang": 0.3,
+        "rating_keseluruhan": 4.7,
+        "kelebihan": "Pengiriman cepat, harga murah, stok lengkap",
+        "kekurangan": "Kualitas barang standar",
+        "rekomendasi": "Vendor andalan untuk perlengkapan sehari-hari",
+        "status_kemitraan": "Aktif"
+      },
+      {
+        "id_vendor": "VEN-006",
+        "nama_vendor": "PT Kitchen Equipment",
+        "jenis_vendor": "Supplier Peralatan Pantry",
+        "kontak": "086789012345 | sales@kitchenequipment.co.id",
+        "alamat": "Jl. Asia Afrika No. 56, Bandung",
+        "total_transaksi_q2": 4,
+        "total_nilai_transaksi": 186000000,
+        "rata_rata_waktu_pengiriman": 3.0,
+        "tingkat_akurasi_pesanan": 97.5,
+        "tingkat_kerusakan_barang": 1.2,
+        "rating_keseluruhan": 4.0,
+        "kelebihan": "Produk berkualitas, garansi panjang",
+        "kekurangan": "Harga premium, pengiriman lambat",
+        "rekomendasi": "Perlu negosiasi harga untuk volume besar",
+        "status_kemitraan": "Aktif"
+      }
+    ],
+    "statistik_vendor": {
+      "vendor_dengan_rating_tertinggi": "PT Electronic Solution (4.8)",
+      "vendor_dengan_rating_terendah": "PT Interior Indah (3.2)",
+      "rata_rata_rating_keseluruhan": 4.1,
+      "vendor_bermasalah": [
+        {
+          "nama_vendor": "PT Interior Indah",
+          "masalah": "Tingkat kerusakan barang tinggi (4.5%)"
+        }
+      ]
+    }
+  }
+}

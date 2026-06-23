@@ -1,0 +1,181 @@
+{
+  "rate_card": {
+    "perusahaan": "PT SAI Inspirasi Kolaborasi",
+    "merek": "SAI Cowork",
+    "website": "https://saicowork.com",
+    "kontak": "info@saicowork.com | +6281287018707",
+    "versi": "2026.2",
+    "berlaku_efektif": "2026-06-01",
+    "mata_uang": "IDR",
+    "catatan": "Harga belum termasuk pajak 11% (PPN). Harga dapat berubah sewaktu-waktu.",
+    "rate_per_layanan": [
+      {
+        "id_layanan": "SVC-001",
+        "nama_layanan": "Private Office",
+        "kategori": "Ruang Kerja",
+        "kapasitas": "1 - 221 orang",
+        "harga": {
+          "per_hari": null,
+          "per_bulan": [
+            {
+              "kapasitas": "1-5 orang",
+              "harga": 5000000
+            },
+            {
+              "kapasitas": "6-10 orang",
+              "harga": 8500000
+            },
+            {
+              "kapasitas": "11-20 orang",
+              "harga": 15000000
+            },
+            {
+              "kapasitas": "21-50 orang",
+              "harga": 32000000
+            },
+            {
+              "kapasitas": "51+ orang",
+              "harga": "Hubungi kami"
+            }
+          ],
+          "per_tahun": "Diskon 10% dari harga bulanan x 12"
+        },
+        "durasi_minimal": "1 bulan"
+      },
+      {
+        "id_layanan": "SVC-002",
+        "nama_layanan": "Dedicated Workspace",
+        "kategori": "Ruang Kerja",
+        "kapasitas": "1 orang",
+        "harga": {
+          "per_hari": null,
+          "per_bulan": 1110000,
+          "per_tahun": 11988000
+        },
+        "durasi_minimal": "1 bulan"
+      },
+      {
+        "id_layanan": "SVC-003",
+        "nama_layanan": "Coworking Space (Hot Desk)",
+        "kategori": "Ruang Kerja Bersama",
+        "kapasitas": "1 - 83 orang[reference:12]",
+        "harga": {
+          "per_hari": 55500,
+          "per_bulan": 850000,
+          "per_tahun": 9180000
+        },
+        "durasi_minimal": "1 hari"
+      },
+      {
+        "id_layanan": "SVC-004",
+        "nama_layanan": "Meeting Room",
+        "kategori": "Ruang Rapat",
+        "kapasitas": "2 - 48 orang[reference:13]",
+        "harga": {
+          "per_jam": [
+            {
+              "kapasitas": "2-6 orang",
+              "harga": 111000
+            },
+            {
+              "kapasitas": "7-15 orang",
+              "harga": 222000
+            },
+            {
+              "kapasitas": "16-30 orang",
+              "harga": 388500
+            },
+            {
+              "kapasitas": "31-48 orang",
+              "harga": 555000
+            }
+          ],
+          "per_hari": "Diskon 20% untuk pemakaian > 4 jam",
+          "per_bulan": null,
+          "per_tahun": null
+        },
+        "durasi_minimal": "1 jam"
+      },
+      {
+        "id_layanan": "SVC-005",
+        "nama_layanan": "Event Space",
+        "kategori": "Ruang Acara",
+        "kapasitas": "10 - 70 orang[reference:14]",
+        "harga": {
+          "per_jam": null,
+          "per_hari": [
+            {
+              "kapasitas": "10-30 orang",
+              "harga": 388500
+            },
+            {
+              "kapasitas": "31-50 orang",
+              "harga": 555000
+            },
+            {
+              "kapasitas": "51-70 orang",
+              "harga": 777000
+            }
+          ],
+          "per_bulan": null,
+          "per_tahun": null
+        },
+        "durasi_minimal": "4 jam"
+      },
+      {
+        "id_layanan": "SVC-006",
+        "nama_layanan": "Virtual Office",
+        "kategori": "Layanan Bisnis",
+        "kapasitas": "1 - 20 orang[reference:15]",
+        "harga": {
+          "per_jam": null,
+          "per_bulan": 444000,
+          "per_tahun": 4440000
+        },
+        "durasi_minimal": "1 tahun",
+        "layanan_termasuk": [
+          "Alamat bisnis di pusat kota",
+          "Penerimaan surat/parsel",
+          "Layanan resepsionis",
+          "Akses ke ruang meeting (biaya tambahan)"
+        ]
+      }
+    ],
+    "paket_khusus": [
+      {
+        "nama_paket": "Corporate Bundle - Silver",
+        "deskripsi": "Untuk perusahaan dengan 5-15 karyawan",
+        "layanan_termasuk": [
+          "5 Dedicated Workspace",
+          "10 jam Meeting Room per bulan",
+          "1 hari Event Space per kuartal"
+        ],
+        "harga_per_bulan": 8500000,
+        "hemat": "20% dari harga normal"
+      },
+      {
+        "nama_paket": "Corporate Bundle - Gold",
+        "deskripsi": "Untuk perusahaan dengan 16-50 karyawan",
+        "layanan_termasuk": [
+          "Private Office untuk 15 orang",
+          "20 jam Meeting Room per bulan",
+          "2 hari Event Space per kuartal",
+          "Virtual Office"
+        ],
+        "harga_per_bulan": 25000000,
+        "hemat": "25% dari harga normal"
+      },
+      {
+        "nama_paket": "Startup Incubator",
+        "deskripsi": "Untuk startup yang tergabung dalam program inkubasi",
+        "layanan_termasuk": [
+          "Coworking Space unlimited",
+          "5 jam Meeting Room per bulan",
+          "Diskon 30% untuk Event Space"
+        ],
+        "harga_per_bulan": 1500000,
+        "hemat": "40% dari harga normal"
+      }
+    ]
+  }
+}

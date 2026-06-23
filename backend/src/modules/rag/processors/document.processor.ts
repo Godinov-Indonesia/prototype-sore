@@ -5,6 +5,7 @@ import { PrismaService } from '../../../core/database/prisma.service';
 import { AiEngineService } from '../../ai-engine/ai-engine.service';
 import { VectorDbService } from '../../../core/vector-db/vector-db.service';
 import * as fs from 'fs';
+import * as path from 'path';
 
 @Processor('document-processing')
 @Injectable()
@@ -36,8 +37,23 @@ export class DocumentProcessor extends WorkerHost {
       }
       const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-      // Chunk document (Simple chunking by length with overlap)
-      const chunks = this.chunkText(fileContent, 1000, 200);
+      // Smart Chunking based on file extension
+      let chunks: string[] = [];
+      const ext = path.extname(filePath).toLowerCase();
+
+      if (ext === '.json') {
+        try {
+          const parsed = JSON.parse(fileContent);
+          chunks = this.chunkJson(parsed);
+        } catch (e) {
+          chunks = this.chunkText(fileContent, 1000, 200);
+        }
+      } else if (ext === '.csv') {
+        chunks = this.chunkCsv(fileContent);
+      } else {
+        chunks = this.chunkText(fileContent, 1000, 200);
+      }
+
       this.logger.log(`Document split into ${chunks.length} chunks.`);
 
       // Embed chunks & construct vector records
@@ -94,6 +110,40 @@ export class DocumentProcessor extends WorkerHost {
       if (index >= text.length || chunkSize <= chunkOverlap) {
         break;
       }
+    }
+    return chunks;
+  }
+
+  private chunkJson(data: any): string[] {
+    if (Array.isArray(data)) {
+      return data.map((item, idx) => `Item ${idx + 1}: ${JSON.stringify(item)}`);
+    }
+    if (typeof data === 'object' && data !== null) {
+      const keys = Object.keys(data);
+      if (keys.length === 1 && Array.isArray(data[keys[0]])) {
+        return data[keys[0]].map((item, idx) => `${keys[0]} Item ${idx + 1}: ${JSON.stringify(item)}`);
+      }
+      if (keys.length === 1 && typeof data[keys[0]] === 'object' && data[keys[0]] !== null) {
+        const innerData = data[keys[0]];
+        const innerKeys = Object.keys(innerData);
+        for (const ik of innerKeys) {
+          if (Array.isArray(innerData[ik])) {
+            return innerData[ik].map((item, idx) => `${keys[0]} - ${ik} Item ${idx + 1}: ${JSON.stringify(item)}`);
+          }
+        }
+      }
+      return [JSON.stringify(data, null, 2)];
+    }
+    return [String(data)];
+  }
+
+  private chunkCsv(csvContent: string): string[] {
+    const lines = csvContent.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length === 0) return [];
+    const header = lines[0];
+    const chunks: string[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      chunks.push(`Header: ${header}\nRow Data: ${lines[i]}`);
     }
     return chunks;
   }

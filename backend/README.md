@@ -1,98 +1,120 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend AI Company Assistant
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend AI Company Assistant adalah sistem asisten pintar berbasis kecerdasan buatan (AI) yang dibangun menggunakan framework **NestJS**. Sistem ini mengintegrasikan **RAG (Retrieval-Augmented Generation)** dengan penyimpanan vektor lokal menggunakan **PostgreSQL (pgvector)** dan memanfaatkan AI provider **Sumopod** untuk pemrosesan teks tingkat lanjut (seperti DeepSeek-R1).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Sistem ini menyediakan 5 fungsi bisnis otomatis (function calling):
+1. **Meeting Summarizer**: Menganalisis transkrip rapat, mengekstrak Action Items, melakukan Task Assignment otomatis ke karyawan di database, serta menjadwalkan pengingat (H-1 Hari & H-12 Jam).
+2. **Quotation Generator**: Membuat penawaran harga formal berdasarkan profil klien dan rate card layanan.
+3. **Proposal Generator**: Membuat proposal bisnis terstruktur menggunakan kebijakan SOP perusahaan.
+4. **Follow Up Generator**: Menyusun email follow-up personal berdasarkan log riwayat interaksi sales lead.
+5. **Business Insight**: Menganalisis log pergerakan barang, kinerja sales, dan rapor vendor untuk menghasilkan laporan strategis dan evaluasi vendor.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Tech Stack
+- **Framework**: NestJS (TypeScript)
+- **Database Utama & Vektor**: PostgreSQL dengan ekstensi `pgvector`
+- **ORM**: Prisma
+- **AI Provider**: Sumopod (OpenAI compatible endpoint)
+- **Queue/Background Worker**: BullMQ & Redis
 
-## Project setup
+---
 
+## 🚀 Setup & Prerequisites
+
+### 1. Kebutuhan Sistem
+Pastikan perangkat Anda telah terinstal:
+- Node.js (v18+)
+- Docker & Docker Compose
+- Redis (berjalan di port `6379`)
+
+### 2. Jalankan Database PostgreSQL dengan pgvector
+Jalankan container PostgreSQL yang sudah terintegrasi dengan ekstensi `pgvector` pada port `5434`:
 ```bash
-$ npm install
+docker run --name prototipe_postgres_vector -e POSTGRES_PASSWORD=postgres -p 5434:5432 -d pgvector/pgvector:pg17
 ```
 
-## Compile and run the project
-
+Setelah container berjalan, buat database baru bernama `prototipe_sore` dan aktifkan ekstensinya:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+PGPASSWORD=postgres psql -h localhost -p 5434 -U postgres -c "CREATE DATABASE prototipe_sore;"
+PGPASSWORD=postgres psql -h localhost -p 5434 -U postgres -d prototipe_sore -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## ⚙️ Konfigurasi Environment (`.env`)
+Salin file `.env.example` menjadi `.env` dan sesuaikan nilainya:
+```env
+PORT=3000
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/prototipe_sore?schema=public"
 
-# e2e tests
-$ npm run test:e2e
+# AI Provider Configurations (Sumopod)
+SUMOPOD_API_KEY="your-sumopod-api-key-here"
+SUMOPOD_BASE_URL="https://api.sumopod.com/v1"
+SUMOPOD_MODEL="deepseek-r1"
 
-# test coverage
-$ npm run test:cov
+# Vector Store Configurations
+VECTOR_DB_PROVIDER="postgresql"
+
+# Redis Configurations
+REDIS_HOST="localhost"
+REDIS_PORT=6379
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 📥 Inisialisasi Database (Seeding)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 1. Sinkronisasi Skema Database
+Generate Prisma Client dan sinkronkan skema ke database PostgreSQL:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma db push
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 2. Seed Direktori Karyawan
+Impor data mock direktori karyawan ke database:
+```bash
+npx ts-node prisma/seed.ts
+```
 
-## Resources
+### 3. Upload & Embed Dokumen Mock (RAG Knowledge)
+Unggah dan lakukan embedding untuk seluruh data dokumen mock (SOP, Katalog Produk, Rapor Vendor, dll.) ke pgvector:
+```bash
+npx ts-node prisma/uploadMockDocs.ts
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🔌 API Endpoints untuk Frontend
 
-## Support
+### 1. AI Agent Assistant (`/api/agent`)
+- **POST `/api/agent/run`**: Mengeksekusi asisten AI secara sinkronus. Menerima multipart/form-data jika melampirkan file.
+- **GET `/api/agent/run/stream`**: Menjalankan asisten secara real-time streaming (SSE) via query string.
+- **POST `/api/agent/run/stream`**: Menjalankan asisten secara real-time streaming (SSE) mendukung upload lampiran file (`multipart/form-data`).
+- **GET `/api/agent/tasks`**: Mengambil daftar seluruh tugas (*Task Assignment*).
+- **GET `/api/agent/reminders`**: Mengambil daftar seluruh pengingat (*Reminders*).
+- **GET `/api/agent/employees`**: Mengambil data direktori karyawan.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 2. Sesi Chat Obrolan (`/api/chats`)
+- **POST `/api/chats`**: Membuat sesi percakapan baru.
+- **GET `/api/chats`**: Mengambil daftar sesi percakapan.
+- **GET `/api/chats/:id`**: Mengambil riwayat pesan dalam satu sesi.
+- **POST `/api/chats/:id/messages`**: Mengirim pesan baru ke sesi (Respon AI secara penuh).
+- **GET `/api/chats/:id/messages/stream`**: Mengirim pesan baru secara streaming (SSE). *Tanpa duplikasi event result.*
+- **DELETE `/api/chats/:id`**: Menghapus sesi obrolan.
 
-## Stay in touch
+### 3. Modul RAG & Dokumen (`/api/rag`)
+- **POST `/api/rag/upload`**: Mengunggah dokumen baru untuk bahan baku RAG.
+- **GET `/api/rag/documents`**: Melihat status pemrosesan dokumen yang diunggah.
+- **POST `/api/rag/query`**: Melakukan pencarian semantic search langsung ke database vektor.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 💻 Menjalankan Aplikasi
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Jalankan server dalam mode development:
+```bash
+npm run start:dev
+```
+
+Aplikasi akan berjalan dan mendengarkan di: `http://localhost:3000/api`

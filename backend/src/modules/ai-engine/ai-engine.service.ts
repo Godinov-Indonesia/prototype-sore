@@ -10,12 +10,21 @@ export class AiEngineService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (apiKey && apiKey !== 'your-openai-api-key-here') {
-      this.openai = new OpenAI({ apiKey });
+    const sumopodApiKey = this.configService.get<string>('SUMOPOD_API_KEY');
+    const sumopodBaseUrl = this.configService.get<string>('SUMOPOD_BASE_URL');
+    const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
+
+    if (sumopodApiKey && sumopodApiKey !== 'your-sumopod-api-key-here') {
+      this.openai = new OpenAI({
+        apiKey: sumopodApiKey,
+        baseURL: sumopodBaseUrl || 'https://api.sumopod.com/v1',
+      });
+      this.logger.log('Sumopod AI provider initialized successfully.');
+    } else if (openaiApiKey && openaiApiKey !== 'your-openai-api-key-here') {
+      this.openai = new OpenAI({ apiKey: openaiApiKey });
       this.logger.log('OpenAI SDK initialized successfully.');
     } else {
-      this.logger.warn('OPENAI_API_KEY is not configured. Running AI Engine in local MOCK mode.');
+      this.logger.warn('Neither SUMOPOD_API_KEY nor OPENAI_API_KEY is configured. Running AI Engine in local MOCK mode.');
     }
   }
 
@@ -29,33 +38,36 @@ export class AiEngineService implements OnModuleInit {
   ): Promise<string> {
     if (this.openai) {
       try {
+        const defaultModel = this.configService.get<string>('SUMOPOD_MODEL') || 'deepseek-r1';
+        const model = options?.model || defaultModel;
         const response = await this.openai.chat.completions.create({
-          model: options?.model || 'gpt-4o-mini',
+          model,
           messages,
           temperature: options?.temperature ?? 0.7,
         });
         return response.choices[0]?.message?.content || '';
       } catch (error) {
-        this.logger.error('OpenAI chat completion API error, raising error:', error);
+        this.logger.error('AI API chat completion error, raising error:', error);
         throw error;
       }
     }
 
     this.logger.log('[Mock AI] Simulated completion generation request received.');
     const lastUserMessage = messages.filter((m) => m.role === 'user').pop()?.content || '';
-    return `[Mock response to: "${lastUserMessage.substring(0, 50)}..."] This is a mock AI completion. Please supply a valid OPENAI_API_KEY in your .env file to enable live OpenAI API responses.`;
+    return `[Mock response to: "${lastUserMessage.substring(0, 50)}..."] This is a mock AI completion. Please supply a valid SUMOPOD_API_KEY or OPENAI_API_KEY in your .env file to enable live responses.`;
   }
 
   async generateEmbeddings(text: string): Promise<number[]> {
     if (this.openai) {
       try {
+        const embeddingModel = this.configService.get<string>('SUMOPOD_EMBEDDING_MODEL') || 'text-embedding-3-small';
         const response = await this.openai.embeddings.create({
-          model: 'text-embedding-3-small',
+          model: embeddingModel,
           input: text.replace(/\n/g, ' '),
         });
         return response.data[0].embedding;
       } catch (error) {
-        this.logger.error('OpenAI embeddings API error, raising error:', error);
+        this.logger.error('AI API embeddings error, raising error:', error);
         throw error;
       }
     }

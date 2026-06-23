@@ -1,64 +1,76 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class VectorDbService {
   private readonly logger = new Logger(VectorDbService.name);
-  // Simple in-memory fallback store for development
-  private inMemoryDb: Map<string, { values: number[]; metadata?: any }> = new Map();
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async upsert(vectors: { id: string; values: number[]; metadata?: any }[]): Promise<void> {
-    const provider = this.configService.get<string>('VECTOR_DB_PROVIDER');
-    const apiKey = this.configService.get<string>('PINECONE_API_KEY');
+    this.logger.log(`Upserting ${vectors.length} vectors to PostgreSQL via pgvector`);
 
-    this.logger.log(`Upserting ${vectors.length} vectors using provider: ${provider}`);
-
-    // Update in-memory fallback database
     for (const vec of vectors) {
-      this.inMemoryDb.set(vec.id, { values: vec.values, metadata: vec.metadata });
-    }
+      const { id, values, metadata } = vec;
+      const documentId = metadata?.documentId;
+      const chunkIndex = metadata?.chunkIndex;
+      const content = metadata?.text || '';
 
-    if (provider === 'pinecone' && apiKey && apiKey !== 'your-pinecone-api-key-here') {
+      const vectorStr = JSON.stringify(values);
+
       try {
-        const environment = this.configService.get<string>('PINECONE_ENVIRONMENT');
-        const indexName = this.configService.get<string>('PINECONE_INDEX');
-        this.logger.log(`[Pinecone Index: ${indexName} in ${environment}] Mocking upsert call to Pinecone API...`);
-        // Actual Pinecone integration would be called here.
+        const sql = `
+          INSERT INTO "document_chunks" ("id", "document_id", "chunk_index", "content", "embedding")
+          VALUES ($1, $2, $3, $4, '${vectorStr}'::vector)
+          ON CONFLICT ("id") DO UPDATE SET
+            "document_id" = EXCLUDED."document_id",
+            "chunk_index" = EXCLUDED."chunk_index",
+            "content" = EXCLUDED."content",
+            "embedding" = EXCLUDED."embedding"
+        `;
+        await this.prisma.$executeRawUnsafe(sql, id, documentId, chunkIndex, content);
       } catch (error) {
-        this.logger.error('Pinecone upsert failed, fell back to memory:', error);
+        this.logger.error(`Failed to upsert chunk vector ${id}:`, error);
+        throw error;
       }
     }
   }
 
   async query(vector: number[], topK: number, filter?: any): Promise<any[]> {
-    const provider = this.configService.get<string>('VECTOR_DB_PROVIDER');
-    this.logger.log(`Querying top ${topK} matches using provider: ${provider}`);
+    this.logger.log(`Querying top ${topK} matches using pgvector`);
 
-    const results: { id: string; score: number; metadata?: any }[] = [];
+    const vectorStr = JSON.stringify(vector);
 
-    // Cosine similarity comparison for mock database
-    for (const [id, item] of this.inMemoryDb.entries()) {
-      if (item.values.length === vector.length) {
-        const score = this.cosineSimilarity(vector, item.values);
-        results.push({ id, score, metadata: item.metadata });
-      }
+    try {
+      const sql = `
+        SELECT
+          "id",
+          "document_id" AS "documentId",
+          "chunk_index" AS "chunkIndex",
+          "content" AS "text",
+          1 - ("embedding" <=> '${vectorStr}'::vector) AS "score"
+        FROM "document_chunks"
+        ORDER BY "embedding" <=> '${vectorStr}'::vector
+        LIMIT $1
+      `;
+      const matches: any[] = await this.prisma.$queryRawUnsafe(sql, topK);
+
+      return matches.map((match) => ({
+        id: match.id,
+        score: Number(match.score),
+        metadata: {
+          documentId: match.documentId,
+          chunkIndex: Number(match.chunkIndex),
+          text: match.text,
+        },
+      }));
+    } catch (error) {
+      this.logger.error('pgvector similarity search failed:', error);
+      throw error;
     }
-
-    return results.sort((a, b) => b.score - a.score).slice(0, topK);
-  }
-
-  private cosineSimilarity(vecA: number[], vecB: number[]): number {
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-    for (let i = 0; i < vecA.length; i++) {
-      dotProduct += vecA[i] * vecB[i];
-      normA += vecA[i] * vecA[i];
-      normB += vecB[i] * vecB[i];
-    }
-    if (normA === 0 || normB === 0) return 0;
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 }

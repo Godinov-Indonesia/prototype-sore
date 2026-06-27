@@ -46,7 +46,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install dumb-init for proper signal handling (penting untuk SSE)
-RUN apk add --no-cache dumb-init
+# Install postgresql-client untuk auto-enable pgvector extension
+RUN apk add --no-cache dumb-init postgresql-client
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nestjs && \
@@ -69,6 +70,10 @@ RUN mkdir -p /app/uploads && chown -R nestjs:nestjs /app/uploads
 # Copy mock data (needed for seeding)
 COPY mockData ./mockData
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 # Set ownership
 RUN chown -R nestjs:nestjs /app
 
@@ -85,5 +90,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 # Use dumb-init to handle signals properly (critical untuk SSE long-lived connections)
 ENTRYPOINT ["dumb-init", "--"]
 
-# Run database migration lalu start server
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/main"]
+# Auto-enable pgvector, migrate, lalu start server
+CMD ["sh", "./docker-entrypoint.sh"]

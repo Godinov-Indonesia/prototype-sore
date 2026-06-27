@@ -7,7 +7,7 @@
 #   DOCKERHUB_TOKEN      - Access Token Docker Hub (bukan password)
 #   VPS_HOST             - IP atau hostname VPS
 #   VPS_USERNAME         - SSH username VPS
-#   VPS_SSH_KEY          - Private key SSH (RSA/Ed25519)
+#   VPS_PASSWORD         - Password SSH
 #   VPS_PORT             - Port SSH (default: 22)
 #   SUMOPOD_API_KEY      - API key Sumopod
 #   DISCORD_TOKEN        - Token Discord Bot
@@ -149,23 +149,7 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             cd ~/www/apps/prototipe-sore
-
-            # Generate .env backend
-            cat > prototipe_assistant/backend/.env << 'ENVEOF'
-            SUMOPOD_API_KEY=${{ secrets.SUMOPOD_API_KEY }}
-            SUMOPOD_BASE_URL=https://ai.sumopod.com
-            SUMOPOD_MODEL=deepseek-v4-flash
-            ENVEOF
-
-            # Generate .env discord bot
-            cat > prototipe_assistant/discord_bot/.env << 'ENVEOF'
-            DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-            ENVEOF
-
-            # Login Docker Hub
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-
+            
             # Pull latest images
             docker compose pull ca-backend ca-discord
 
@@ -178,6 +162,9 @@ jobs:
             # Verifikasi services berjalan
             echo "=== Container Status ==="
             docker compose ps
+
+            # Restart Nginx
+            docker compose restart nginx
 
             echo "=== Health Check ==="
             sleep 10

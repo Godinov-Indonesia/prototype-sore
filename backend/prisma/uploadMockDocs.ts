@@ -1,11 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { RagService } from '../src/modules/rag/rag.service';
-import { PrismaService } from '../src/core/database/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
 async function bootstrap() {
+  const isProd = !fs.existsSync(path.join(__dirname, '../src/app.module.ts'));
+  const AppModulePath = isProd ? '../dist/app.module.js' : '../src/app.module';
+  const RagServicePath = isProd ? '../dist/modules/rag/rag.service.js' : '../src/modules/rag/rag.service';
+  const PrismaServicePath = isProd ? '../dist/core/database/prisma.service.js' : '../src/core/database/prisma.service';
+
+  const { AppModule } = await import(AppModulePath);
+  const { RagService } = await import(RagServicePath);
+  const { PrismaService } = await import(PrismaServicePath);
+
   const app = await NestFactory.createApplicationContext(AppModule);
   const ragService = app.get(RagService);
   const prisma = app.get(PrismaService);

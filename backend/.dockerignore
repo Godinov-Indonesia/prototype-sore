@@ -1,0 +1,54 @@
+# Dependencies (will be installed fresh in container)
+node_modules/
+
+# Build outputs (will be built fresh in container)
+dist/
+build/
+
+# Environment files (injected via docker-compose or env flags)
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# IDE & Editor configs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Test & Coverage
+test/
+coverage/
+.nyc_output/
+jest.config.*
+
+# Documentation & Agent configs
+README.md
+GEMINI.md
+.agents/
+.nestjs/
+
+# Upload files (mounted as volume in production)
+uploads/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml

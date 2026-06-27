@@ -1,0 +1,85 @@
+# =============================================
+# Docker Compose - Development (build lokal)
+# Penggunaan: docker compose -f docker-compose.dev.yml up -d --build
+# =============================================
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: prototipe_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prototipe_sore
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d prototipe_sore"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: prototipe_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: prototipe_backend
+    restart: unless-stopped
+    ports:
+      - "5100:5100"
+    environment:
+      PORT: 5100
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/prototipe_sore?schema=public"
+      SUMOPOD_API_KEY: "${SUMOPOD_API_KEY}"
+      SUMOPOD_BASE_URL: "${SUMOPOD_BASE_URL:-https://ai.sumopod.com}"
+      SUMOPOD_MODEL: "${SUMOPOD_MODEL:-deepseek-v4-flash}"
+      VECTOR_DB_PROVIDER: "postgresql"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  discord-bot:
+    build:
+      context: ./discord-ai-bot
+      dockerfile: Dockerfile
+    container_name: prototipe_discord_bot
+    restart: unless-stopped
+    environment:
+      DISCORD_TOKEN: "${DISCORD_TOKEN}"
+      DISCORD_CLIENT_ID: "${DISCORD_CLIENT_ID}"
+      BACKEND_API_URL: "http://backend:5100/api"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local

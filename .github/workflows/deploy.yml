@@ -1,0 +1,190 @@
+# =============================================
+# CI/CD Pipeline: Build, Push to Docker Hub, Deploy to VPS
+# =============================================
+# Secrets yang harus di-set di GitHub Repository Settings > Secrets:
+#
+#   DOCKERHUB_USERNAME   - Username Docker Hub
+#   DOCKERHUB_TOKEN      - Access Token Docker Hub (bukan password)
+#   VPS_HOST             - IP atau hostname VPS
+#   VPS_USERNAME         - SSH username VPS
+#   VPS_SSH_KEY          - Private key SSH (RSA/Ed25519)
+#   VPS_PORT             - Port SSH (default: 22)
+#   SUMOPOD_API_KEY      - API key Sumopod
+#   DISCORD_TOKEN        - Token Discord Bot
+#   DISCORD_CLIENT_ID    - Client ID Discord Bot
+# =============================================
+
+name: Build, Push & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: "Service yang akan di-deploy"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - backend
+          - discord-bot
+
+env:
+  BACKEND_IMAGE: godinov/prototipe-company-assistant-backend
+  DISCORD_BOT_IMAGE: godinov/prototipe-company-assistant-discord-bot
+
+jobs:
+  # =============================================
+  # Job 1: Build & Push Backend
+  # =============================================
+  build-backend:
+    name: 🏗️ Build & Push Backend
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event.inputs.deploy_target == 'all' ||
+      github.event.inputs.deploy_target == 'backend'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏷️ Generate image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.BACKEND_IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=,format=short
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: 🐳 Build & Push Backend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =============================================
+  # Job 2: Build & Push Discord Bot
+  # =============================================
+  build-discord-bot:
+    name: 🤖 Build & Push Discord Bot
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event.inputs.deploy_target == 'all' ||
+      github.event.inputs.deploy_target == 'discord-bot'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏷️ Generate image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DISCORD_BOT_IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=,format=short
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: 🐳 Build & Push Discord Bot Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./discord-ai-bot
+          file: ./discord-ai-bot/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =============================================
+  # Job 3: Deploy ke VPS via SSH
+  # =============================================
+  deploy:
+    name: 🚀 Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-discord-bot]
+    # Tetap jalan meskipun salah satu build di-skip (misal manual trigger satu service)
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ~/prototipe-sore
+
+            # Buat direktori jika belum ada
+            mkdir -p prototipe_assistant/backend
+            mkdir -p prototipe_assistant/discord_bot
+            mkdir -p prototipe_assistant/backend/app/uploads
+            mkdir -p prototipe_assistant/postgres_data
+
+            # Generate .env backend
+            cat > prototipe_assistant/backend/.env << 'ENVEOF'
+            SUMOPOD_API_KEY=${{ secrets.SUMOPOD_API_KEY }}
+            SUMOPOD_BASE_URL=https://ai.sumopod.com
+            SUMOPOD_MODEL=deepseek-v4-flash
+            ENVEOF
+
+            # Generate .env discord bot
+            cat > prototipe_assistant/discord_bot/.env << 'ENVEOF'
+            DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            ENVEOF
+
+            # Login Docker Hub
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # Pull latest images
+            docker compose pull ca-backend ca-discord
+
+            # Restart services
+            docker compose up -d ca-psql-pgvector ca-backend ca-discord --remove-orphans
+
+            # Cleanup dangling images
+            docker image prune -f
+
+            # Verifikasi services berjalan
+            echo "=== Container Status ==="
+            docker compose ps
+
+            echo "=== Health Check ==="
+            sleep 10
+            docker compose ps --format "table {{.Name}}\t{{.Status}}"

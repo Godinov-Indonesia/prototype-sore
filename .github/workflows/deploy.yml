@@ -68,9 +68,8 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha,prefix=,format=short
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
 
-      - name: 🐳 Build & Push Backend Image
+      - name: 📤 Build & Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -87,6 +86,7 @@ jobs:
   build-discord-bot:
     name: 🤖 Build & Push Discord Bot
     runs-on: ubuntu-latest
+
     if: >
       github.event_name == 'push' ||
       github.event.inputs.deploy_target == 'all' ||
@@ -105,8 +105,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🏷️ Generate image tags
-        id: meta
+      - id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DISCORD_BOT_IMAGE }}
@@ -115,7 +114,7 @@ jobs:
             type=sha,prefix=,format=short
             type=raw,value={{date 'YYYYMMDD-HHmmss'}}
 
-      - name: 🐳 Build & Push Discord Bot Image
+      - name: 📤 Build & Push Discord Bot Image
         uses: docker/build-push-action@v6
         with:
           context: ./discord-ai-bot
@@ -132,8 +131,11 @@ jobs:
   deploy:
     name: 🚀 Deploy to VPS
     runs-on: ubuntu-latest
-    needs: [build-backend, build-discord-bot]
-    # Tetap jalan meskipun salah satu build di-skip (misal manual trigger satu service)
+
+    needs:
+      - build-backend
+      - build-discord-bot
+
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&
@@ -147,25 +149,44 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
+
           script: |
-            cd ~/www/apps/prototipe-sore
-            
-            # Pull latest images
+            set -e
+
+            echo "=== Go to project ==="
+            cd ~/www/apps
+
+            echo "Current Directory:"
+            pwd
+
+            echo "Check docker-compose.yml..."
+            test -f docker-compose.yml
+
+            echo "=== Docker Compose Version ==="
+            docker compose version
+
+            echo "=== Pull Latest Images ==="
             docker compose pull ca-backend ca-discord
 
-            # Restart services
-            docker compose up -d ca-psql-pgvector ca-backend ca-discord --remove-orphans
+            echo "=== Deploy Containers ==="
+            docker compose up -d \
+              ca-psql-pgvector \
+              ca-backend \
+              ca-discord \
+              --remove-orphans
 
-            # Cleanup dangling images
+            echo "=== Restart Nginx ==="
+            docker compose restart nginx
+
+            echo "=== Cleanup Images ==="
             docker image prune -f
 
-            # Verifikasi services berjalan
             echo "=== Container Status ==="
             docker compose ps
 
-            # Restart Nginx
-            docker compose restart nginx
-
-            echo "=== Health Check ==="
+            echo "=== Wait Health Check ==="
             sleep 10
+
             docker compose ps --format "table {{.Name}}\t{{.Status}}"
+
+            echo "✅ Deploy Success"

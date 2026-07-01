@@ -131,4 +131,8 @@ export class ApiService {
       throw error;
     }
   }
+
+  public static async getRagDocuments(): Promise<any[]> {
+    return this.request<any[]>('/rag/documents');
+  }
 }

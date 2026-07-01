@@ -1,14 +1,212 @@
-import { Message } from 'discord.js';
+import { 
+  Message, 
+  EmbedBuilder, 
+  ComponentType
+} from 'discord.js';
+import { cleanMarkdownTables } from '../utils/table-parser';
+import { parseChapters } from '../utils/chapter.parser';
+import { exportToPDF, exportToDOCX } from '../utils/exporter.util';
+import { createWorkspaceEmbed, createWorkspaceComponents } from '../components/workspace.component';
 
 interface SseMessage {
   event: string;
   data: any;
 }
 
+export interface CachedDoc {
+  content: string;
+  prompt: string;
+  steps?: any[];
+  references?: any[];
+  timestamp: number;
+}
+
+export interface RenderOptions {
+  steps?: { toolName: string }[];
+  references?: { documentId?: string; chunkIndex?: number; score?: number; textSnippet?: string }[];
+}
+
 export class StreamService {
+  public static documentCache = new Map<string, CachedDoc>();
+
   private static getBaseUrl(): string {
     const url = process.env.API_BASE_URL || 'http://localhost:3000/api';
     return url.endsWith('/') ? url.slice(0, -1) : url;
+  }
+
+  /**
+   * Universally renders a response (under 1200 chars -> standard embed, over 1200 -> Notion workspace)
+   */
+  public static async renderResponse(
+    contentBuffer: string,
+    prompt: string,
+    activeMessage: Message,
+    options?: RenderOptions
+  ): Promise<void> {
+    const promptPrefix = `👤 **User Prompt:** *"${prompt}"*\n---\n🤖 **Company AI Assistant**:\n`;
+
+    // Pre-process and truncate references if present
+    let referencesLength = 0;
+    if (options?.references && options.references.length > 0) {
+      options.references.forEach((ref: any) => {
+        const snippet = ref.textSnippet || '';
+        if (snippet.length > 150) {
+          ref.textSnippet = snippet.substring(0, 150) + '... [truncated]';
+        }
+      });
+
+      const refDetails = options.references.map((ref: any, idx: number) => {
+        const scoreStr = ref.score ? ` (Score: ${(ref.score * 100).toFixed(1)}%)` : '';
+        return `${idx + 1}. Doc: \`${ref.documentId || 'Unknown'}\` Index: ${ref.chunkIndex ?? 'N/A'}${scoreStr}\n*Snippet*: ${ref.textSnippet || ''}`;
+      }).join('\n\n');
+      referencesLength = refDetails.length;
+    }
+
+    const totalLength = contentBuffer.length + referencesLength;
+
+    if (totalLength < 1200) {
+      const { text: processedText } = cleanMarkdownTables(contentBuffer);
+      const embed = new EmbedBuilder()
+        .setColor(0x00A2FF)
+        .setDescription(processedText || '🤖 *No response content received.*')
+        .setTimestamp()
+        .setFooter({ text: 'AI Assistant', iconURL: activeMessage.client.user?.displayAvatarURL() });
+
+      // Add steps if present
+      if (options?.steps && options.steps.length > 0) {
+        const stepDetails = options.steps.map((step: any, idx: number) => `${idx + 1}. **${step.toolName}**`).join('\n');
+        embed.addFields({ name: 'Automated Steps Executed', value: stepDetails });
+      }
+
+      // Add references if present
+      if (options?.references && options.references.length > 0) {
+        const refDetails = options.references.map((ref: any, idx: number) => {
+          const scoreStr = ref.score ? ` (Score: ${(ref.score * 100).toFixed(1)}%)` : '';
+          return `${idx + 1}. Doc: \`${ref.documentId || 'Unknown'}\` Index: ${ref.chunkIndex ?? 'N/A'}${scoreStr}\n*Snippet*: ${ref.textSnippet || ''}`;
+        }).join('\n\n');
+        embed.addFields({ name: 'References Context', value: refDetails.length > 1024 ? refDetails.substring(0, 1020) + '...' : refDetails });
+      }
+
+      await activeMessage.edit({
+        content: `👤 **User Prompt:** *"${prompt}"*\n---\n🤖 **Company AI Assistant**:`,
+        embeds: [embed],
+        components: []
+      });
+      return;
+    }
+
+    // Over 1200 chars (The Document Workspace)
+    const chapters = parseChapters(contentBuffer);
+    const cleanPrompt = prompt.length > 100 ? prompt.substring(0, 97) + '...' : prompt;
+
+    // Cache the document text and metadata
+    StreamService.documentCache.set(activeMessage.id, {
+      content: contentBuffer,
+      prompt,
+      steps: options?.steps,
+      references: options?.references,
+      timestamp: Date.now()
+    });
+
+    // Clean up old entries (older than 2 hours)
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+    const now = Date.now();
+    for (const [key, val] of StreamService.documentCache.entries()) {
+      if (now - val.timestamp > TWO_HOURS) {
+        StreamService.documentCache.delete(key);
+      }
+    }
+
+    // Delegate creation of Embed and Buttons to modules
+    const introEmbed = createWorkspaceEmbed(chapters, cleanPrompt, activeMessage, options);
+    const { selectRow, exportRow } = createWorkspaceComponents(chapters);
+
+    try {
+      const introContent = `👤 **User Prompt:** *"${prompt}"*\n---\n🤖 **Company AI Assistant**:\n`;
+      await activeMessage.edit({
+        content: introContent,
+        embeds: [introEmbed],
+        components: [selectRow, exportRow]
+      });
+
+      // Start Interaction Collector
+      const collector = activeMessage.createMessageComponentCollector({
+        time: 3600000 // 1 hour collector
+      });
+
+      collector.on('collect', async (interaction) => {
+        try {
+          // Immediately defer based on interaction type to prevent 3-second timeout
+          if (interaction.isButton()) {
+            await interaction.deferReply({ flags: ['Ephemeral'] });
+          } else if (interaction.isStringSelectMenu()) {
+            await interaction.deferUpdate();
+          }
+
+          if (interaction.isStringSelectMenu()) {
+            if (interaction.customId === 'doc_chapter_select') {
+              const selectedIdx = parseInt(interaction.values[0], 10);
+              const selectedChapter = chapters[selectedIdx];
+
+              if (selectedChapter) {
+                const { text: cleanedChapterText } = cleanMarkdownTables(selectedChapter.content);
+                let displayText = cleanedChapterText;
+
+                if (displayText.length > 1900) {
+                  displayText = displayText.substring(0, 1850) + '\n\n... (Content truncated due to Discord length limits. Please download the full PDF/DOCX to view the entire section.)';
+                }
+
+                const chapterEmbed = new EmbedBuilder()
+                  .setColor(0x00A2FF)
+                  .setTitle(`📖 ${selectedChapter.title}`)
+                  .setDescription(displayText || '*No content in this chapter.*')
+                  .setTimestamp()
+                  .setFooter({ text: `Chapter ${selectedIdx + 1} of ${chapters.length} • AI Assistant`, iconURL: activeMessage.client.user?.displayAvatarURL() });
+
+                await interaction.editReply({
+                  embeds: [chapterEmbed]
+                });
+              }
+            }
+          } else if (interaction.isButton()) {
+            try {
+              const authorName = interaction.user.username;
+              const docTitle = 'AI Response Document';
+
+              if (interaction.customId === 'export_pdf_button') {
+                const pdfBuffer = await exportToPDF(docTitle, authorName, contentBuffer);
+                await interaction.editReply({
+                  content: '✅ **PDF exported successfully!**',
+                  files: [{
+                    attachment: pdfBuffer,
+                    name: 'document.pdf'
+                  }]
+                });
+              } else if (interaction.customId === 'export_docx_button') {
+                const docxBuffer = await exportToDOCX(docTitle, authorName, contentBuffer);
+                await interaction.editReply({
+                  content: '✅ **DOCX exported successfully!**',
+                  files: [{
+                    attachment: docxBuffer,
+                    name: 'document.docx'
+                  }]
+                });
+              }
+            } catch (err: any) {
+              console.error('Export error:', err);
+              await interaction.editReply({
+                content: `❌ **Failed to export document**: ${err.message || err}`
+              });
+            }
+          }
+        } catch (collectorErr: any) {
+          console.error('Error handling collected interaction:', collectorErr.message || collectorErr);
+        }
+      });
+
+    } catch (discordError: any) {
+      console.error('Failed to set up Notion-Style interface:', discordError.message);
+    }
   }
 
   /**
@@ -20,7 +218,7 @@ export class StreamService {
     content: string,
     messageToEdit: Message
   ): Promise<void> {
-        const url = `${this.getBaseUrl()}/chats/${sessionId}/messages/stream?content=${encodeURIComponent(content)}`;
+    const url = `${this.getBaseUrl()}/chats/${sessionId}/messages/stream?content=${encodeURIComponent(content)}`;
     let activeMessage = messageToEdit;
 
     try {
@@ -37,8 +235,7 @@ export class StreamService {
       const decoder = new TextDecoder('utf-8');
       
       let buffer = '';
-      const contentParts: string[] = [''];
-      let currentPartIndex = 0;
+      let contentBuffer = '';
       let isDone = false;
       
       // Throttle configuration
@@ -47,6 +244,8 @@ export class StreamService {
       let lastEditedText = '';
       let updatePending = false;
       let updateTimeout: NodeJS.Timeout | null = null;
+
+      const promptPrefix = `👤 **User Prompt:** *"${content}"*\n---\n🤖 **Company AI Assistant**:\n`;
 
       const triggerMessageUpdate = async (force = false) => {
         const now = Date.now();
@@ -72,34 +271,30 @@ export class StreamService {
         updatePending = false;
         lastUpdate = now;
 
-        // Build status/thinking message representation
-        let text = '';
-        if (currentPartIndex === 0) {
-          if (contentParts[0]) {
-            text += contentParts[0];
-          } else if (isDone) {
-            text += '🤖 *No response content received.*';
-          } else {
-            // Keep the initial "Thinking..." message, don't edit yet
-            return;
-          }
-        } else {
-          if (contentParts[currentPartIndex]) {
-            text += contentParts[currentPartIndex];
-          } else if (!isDone) {
-            text += '🤖 *Generating response...*';
-          }
+        if (isDone) {
+          await this.renderResponse(contentBuffer, content, activeMessage);
+          return;
         }
 
-        // Clip text if it exceeds Discord's 2000 character limit
-        if (text.length > 2000) {
-          text = text.substring(0, 1990) + '... (truncated)';
+        // During streaming (isDone is false)
+        let text = contentBuffer;
+        if (!text) {
+          // Keep the initial "Thinking..." message, don't edit yet
+          return;
         }
 
-        if (text && text !== lastEditedText) {
+        // Clip text dynamically to ensure the final message doesn't exceed 2,000 characters
+        const maxAllowedLength = 1950 - promptPrefix.length;
+        if (text.length > maxAllowedLength) {
+          text = text.substring(0, Math.max(0, maxAllowedLength - 40)) + '... (truncated, writing file...)';
+        }
+
+        const formattedContent = promptPrefix + text;
+
+        if (formattedContent && formattedContent !== lastEditedText) {
           try {
-            await activeMessage.edit({ content: text });
-            lastEditedText = text;
+            await activeMessage.edit({ content: formattedContent });
+            lastEditedText = formattedContent;
           } catch (discordError: any) {
             console.error('Failed to edit Discord message chunk:', discordError.message);
           }
@@ -114,46 +309,7 @@ export class StreamService {
             break;
           case 'content':
             if (msg.data && msg.data.chunk) {
-              let currentPartText = contentParts[currentPartIndex] + msg.data.chunk;
-
-              // Auto-chunking threshold at 1900 chars (giving buffer for formatting / embeds)
-              if (currentPartText.length > 1900) {
-                const allowedLength = 1900;
-                let splitIdx = allowedLength;
-
-                // Search window to find a space or newline in the last 100 chars
-                const searchWindow = currentPartText.substring(allowedLength - 100, allowedLength);
-                const lastSpace = Math.max(searchWindow.lastIndexOf(' '), searchWindow.lastIndexOf('\n'));
-                if (lastSpace !== -1) {
-                  splitIdx = (allowedLength - 100) + lastSpace;
-                }
-
-                const keep = currentPartText.substring(0, splitIdx);
-                const overflow = currentPartText.substring(splitIdx);
-
-                contentParts[currentPartIndex] = keep;
-                // Flush current message with finalized content
-                await triggerMessageUpdate(true);
-
-                currentPartIndex++;
-                contentParts[currentPartIndex] = overflow;
-
-                // Send a new follow-up message to continue streaming the response
-                try {
-                  if (activeMessage.channel && 'send' in activeMessage.channel) {
-                    activeMessage = await (activeMessage.channel as any).send({
-                      content: '🤖 *Generating response...*'
-                    });
-                    lastEditedText = '🤖 *Generating response...*';
-                  } else {
-                    throw new Error('Channel is not sendable (missing send method)');
-                  }
-                } catch (discordError: any) {
-                  console.error('Failed to send follow-up message:', discordError.message);
-                }
-              } else {
-                contentParts[currentPartIndex] = currentPartText;
-              }
+              contentBuffer += msg.data.chunk;
               await triggerMessageUpdate();
             }
             break;

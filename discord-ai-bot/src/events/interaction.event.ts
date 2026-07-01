@@ -1,5 +1,6 @@
-import { Events, Interaction } from 'discord.js';
+import { Events, Interaction, EmbedBuilder } from 'discord.js';
 import { ExtendedClient, CustomIds } from '../types/discord.types';
+import { StreamService } from '../services/stream.service';
 
 export default {
   name: Events.InteractionCreate,
@@ -29,10 +30,7 @@ export default {
       // TODO: Delegate to button interaction registry
     } else if (interaction.isModalSubmit()) {
       console.log(`Received Modal interaction: ${interaction.customId}`);
-      if (interaction.customId === CustomIds.CHAT_MODAL) {
-        const { handleChatPromptModal } = require('../interactions/modals/chat-prompt.modal');
-        await handleChatPromptModal(interaction);
-      } else if (interaction.customId === CustomIds.QUERY_MODAL) {
+      if (interaction.customId === CustomIds.QUERY_MODAL) {
         const { handleRagQueryModal } = require('../interactions/modals/rag-query.modal');
         await handleRagQueryModal(interaction);
       }

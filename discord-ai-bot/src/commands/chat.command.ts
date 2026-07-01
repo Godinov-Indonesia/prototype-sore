@@ -1,27 +1,51 @@
-import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { Command, CustomIds } from '../types/discord.types';
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { Command } from '../types/discord.types';
+import { SessionService } from '../services/session.service';
+import { StreamService } from '../services/stream.service';
 
 const chatCommand: Command = {
   data: new SlashCommandBuilder()
     .setName('chat')
-    .setDescription('Ask the AI Assistant a question'),
+    .setDescription('Ask the AI Assistant a question')
+    .addStringOption(option =>
+      option
+        .setName('prompt')
+        .setDescription('Type your question or instruction for the AI')
+        .setRequired(true)
+    ),
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    const modal = new ModalBuilder()
-      .setCustomId(CustomIds.CHAT_MODAL)
-      .setTitle('Ask Company AI');
+    const prompt = interaction.options.getString('prompt', true);
+    const userId = interaction.user.id;
+    const username = interaction.user.username;
 
-    const messageInput = new TextInputBuilder()
-      .setCustomId(CustomIds.CHAT_INPUT_CONTENT)
-      .setLabel('Message')
-      .setStyle(TextInputStyle.Paragraph)
-      .setPlaceholder('Enter your request (e.g. Tolong buatin proposal vendor X)...')
-      .setRequired(true);
+    // Immediately defer response to avoid timeout
+    await interaction.deferReply();
 
-    const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
-    modal.addComponents(actionRow);
+    try {
+      // Retrieve existing or instantiate new session
+      const sessionId = await SessionService.getOrCreateSession(userId, username);
 
-    await interaction.showModal(modal);
+      const message = await interaction.editReply({
+        content: '🤖 *Thinking...*',
+        embeds: []
+      });
+
+      // Start streaming directly to the message object
+      await StreamService.streamChat(sessionId, prompt, message);
+    } catch (error: any) {
+      console.error('Error in chat command execution:', error);
+      const errorEmbed = new EmbedBuilder()
+        .setColor(0xFF3366)
+        .setTitle('❌ AI Stream Request Failed')
+        .setDescription(`An error occurred while processing your message:\n\`\`\`${error.message || error}\`\`\``)
+        .setTimestamp();
+
+      await interaction.editReply({
+        content: '',
+        embeds: [errorEmbed]
+      });
+    }
   }
 };
 

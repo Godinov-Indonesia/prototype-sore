@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { ApiService } from '../services/api.service';
 import { Command } from '../types/discord.types';
+import { StreamService } from '../services/stream.service';
 
 const uploadCommand: Command = {
   data: new SlashCommandBuilder()
@@ -55,27 +56,10 @@ const uploadCommand: Command = {
       // Submit to NestJS agent runner
       const result = await ApiService.runAgent(prompt, fileBuffer, fileOption.name);
 
-      // Construct a professional embed of results
-      const embed = new EmbedBuilder()
-        .setColor(0x00FF88)
-        .setTitle('📋 Agent Action Output')
-        .setDescription(`Executed tasks based on **${fileOption.name}**.`)
-        .addFields(
-          { name: 'User Instruction', value: `"${prompt}"` },
-          { name: 'Agent Response', value: result.answer.length > 1024 ? result.answer.substring(0, 1020) + '...' : result.answer }
-        )
-        .setTimestamp()
-        .setFooter({ text: 'AI Agent System', iconURL: interaction.client.user?.displayAvatarURL() });
-
-      // Add details if any tool steps were run
-      if (result.steps && result.steps.length > 0) {
-        const stepDetails = result.steps.map((step: any, idx: number) => {
-          return `${idx + 1}. **${step.toolName}**`;
-        }).join('\n');
-        embed.addFields({ name: 'Automated Steps Executed', value: stepDetails });
-      }
-
-      await interaction.editReply({ embeds: [embed] });
+      const message = await interaction.editReply({ content: '🤖 *Formatting output...*' });
+      await StreamService.renderResponse(result.answer, prompt, message, {
+        steps: result.steps
+      });
 
     } catch (error: any) {
       console.error('Error running agent with attachment:', error);
